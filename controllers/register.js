@@ -44,8 +44,6 @@ var register = async (ctx, next) => {
                 })
             }
         }
-
-
     }
     await respData();
 };

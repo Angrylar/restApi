@@ -3,6 +3,7 @@ const APIError = require('../rest').APIError;
 // const respJson = require('../common.js');
 const {query} = require('../mysql.cfg.js');
 
+const encodeLoginkey = require('../encodeloginkey');
 
 var login = async (ctx, next) => {
     var
@@ -31,9 +32,18 @@ var login = async (ctx, next) => {
                     // respObj.code = '10001';
                     // respObj.msg = 'SUCCESS';
                     // respObj = respJson('10001', 'SUCCESS');
+                    // let obj = {'mid':decodeLoginkey(dataList[0].mid)};
+                    let beforeLoginKey = {};
+                    let mid = dataList[0].mid;
+                        beforeLoginKey.mid = JSON.stringify(mid);
+                    var loginKey = encodeLoginkey(JSON.stringify(beforeLoginKey));
+                    // var loginKey = encodeLoginkey(mid.toString());
                     ctx.rest({
                         code: 10001,
-                        msg: 'SUCCESS'
+                        msg: 'SUCCESS',
+                        result: {
+                            loginKey: loginKey
+                        }
                     });
                 } else {
                     // respObj.code = '10002';
@@ -54,8 +64,6 @@ var login = async (ctx, next) => {
                 });
             }
         }
-
-
     }
     await getData();
     // ctx.response.type = 'application/json';
