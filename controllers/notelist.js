@@ -22,10 +22,10 @@ var notelist = async (ctx, next) => {
         } else {
             var mid = JSON.parse(decodeLoginkey(loginKey)).mid;
             var isLegal = false;
-            async function ccc() {
+            async function redisGet () {
                 return redis.get(mid)
             }
-            var getter = await ccc();
+            var getter = await redisGet();
             if (getter) {
                 if (JSON.parse(getter).loginKey == loginKey) {
                     isLegal = true;

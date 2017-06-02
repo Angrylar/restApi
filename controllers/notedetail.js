@@ -1,14 +1,8 @@
 const APIError = require('../rest').APIError;
 const {query} = require('../mysql.cfg.js');
 const decodeLoginkey = require('../decodeloginkey.js');
-const Redis = require('ioredis');
-const redis = new Redis({
-    host: '127.0.0.1',//安装好的redis服务器地址
-    port: 6379,　//端口
-    // prefix: 'sam:',//存诸前缀
-    ttl: 60 * 60 * 24,//过期时间
-    db: 0
-});
+const redis = require('../redis')();
+
 var noteDetail = async (ctx, next) => {
     var loginKey = ctx.request.body.loginKey || '';
     var nid = ctx.request.body.nid || '';
@@ -34,23 +28,49 @@ var noteDetail = async (ctx, next) => {
                 var mid = JSON.parse(decodeLoginkey(loginKey)).mid;
                 console.log(mid);
                 console.log(nid);
-                let dataList = await searchNotelist(mid, nid);
-                console.log(dataList);
-                if (dataList.length >= 0) {
-                    var resp = {};
-                        resp.tittle =  dataList[0].tittle;
+
+                var isLegal = false;
+                async function redisGet() {
+                    return redis.get(mid)
+                }
+                var getter = await redisGet();
+                if (getter) {
+                    if (JSON.parse(getter).loginKey == loginKey) {
+                        isLegal = true;
+                    } else {
+                        isLegal = false;
+                    }
+                    console.log(getter)
+                } else {
+                    ctx.rest({
+                        code: 10006,
+                        msg: '本次登录不合法，请重新登录',
+                    })
+                }
+                if (isLegal) {
+                    let dataList = await searchNotelist(mid, nid);
+                    console.log(dataList);
+                    if (dataList.length >= 0) {
+                        var resp = {};
+                        resp.tittle = dataList[0].tittle;
                         resp.content = dataList[0].content;
 
                         redis.get('foo').then(function (result) {
-  console.log(result);
-});
-                    ctx.rest({
-                        code: 10001,
-                        msg: 'SUCCESS',
-                        result: resp
-                    })
+                            console.log(result);
+                        });
+                        ctx.rest({
+                            code: 10001,
+                            msg: 'SUCCESS',
+                            result: resp
+                        })
+                    } else {
+                        APIError();
+                    }
                 } else {
-                    APIError();
+                    ctx.rest({
+                        code: 10006,
+                        msg: '本次登录不合法，请重新登录',
+                    })
                 }
             }
         }
