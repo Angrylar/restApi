@@ -21,6 +21,9 @@
         "koa-router": "7.0.0",
         "koa-bodyparser": "3.2.0",
         "mysql":"latest",
-        "koa-cors":"latest"
+        "koa-cors":"latest",
+        "koa2-cookie-session":"latest",
+        "koa-session-redis":"latest" ,
+        "ioredis":"latest"
     }
 }

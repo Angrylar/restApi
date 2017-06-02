@@ -1,7 +1,14 @@
 const APIError = require('../rest').APIError;
 const {query} = require('../mysql.cfg.js');
 const decodeLoginkey = require('../decodeloginkey.js');
-
+const Redis = require('ioredis');
+const redis = new Redis({
+    host: '127.0.0.1',//安装好的redis服务器地址
+    port: 6379,　//端口
+    // prefix: 'sam:',//存诸前缀
+    ttl: 60 * 60 * 24,//过期时间
+    db: 0
+});
 var noteDetail = async (ctx, next) => {
     var loginKey = ctx.request.body.loginKey || '';
     var nid = ctx.request.body.nid || '';
@@ -33,6 +40,10 @@ var noteDetail = async (ctx, next) => {
                     var resp = {};
                         resp.tittle =  dataList[0].tittle;
                         resp.content = dataList[0].content;
+
+                        redis.get('foo').then(function (result) {
+  console.log(result);
+});
                     ctx.rest({
                         code: 10001,
                         msg: 'SUCCESS',

@@ -5,6 +5,8 @@ const {query} = require('../mysql.cfg.js');
 
 const encodeLoginkey = require('../encodeloginkey');
 
+const redis = require('../redis')();
+
 var login = async (ctx, next) => {
     var
         accountNo = ctx.request.body.accountNo || '',
@@ -35,9 +37,16 @@ var login = async (ctx, next) => {
                     // let obj = {'mid':decodeLoginkey(dataList[0].mid)};
                     let beforeLoginKey = {};
                     let mid = dataList[0].mid;
-                        beforeLoginKey.mid = JSON.stringify(mid);
+                    beforeLoginKey.mid = JSON.stringify(mid);
+                    let now = new Date();
+                    beforeLoginKey.timeStemp = now.getTime()/1000;
                     var loginKey = encodeLoginkey(JSON.stringify(beforeLoginKey));
                     // var loginKey = encodeLoginkey(mid.toString());
+
+                    var redisObj = {};
+                    redisObj.loginKey = loginKey;
+                    redisObj.msg = true;
+                    redis.set(mid, JSON.stringify(redisObj));
                     ctx.rest({
                         code: 10001,
                         msg: 'SUCCESS',
