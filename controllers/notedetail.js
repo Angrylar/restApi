@@ -55,9 +55,6 @@ var noteDetail = async (ctx, next) => {
                         resp.tittle = dataList[0].tittle;
                         resp.content = dataList[0].content;
 
-                        redis.get('foo').then(function (result) {
-                            console.log(result);
-                        });
                         ctx.rest({
                             code: 10001,
                             msg: 'SUCCESS',
