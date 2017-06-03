@@ -66,7 +66,7 @@ var login = async (ctx, next) => {
             } else {
                 // respObj.code = '10003';
                 // respObj.msg = '该用户不存在';
-                respObj = respJson('10003', '该用户不存在');
+                // respObj = respJson('10003', '该用户不存在');
                 ctx.rest({
                     code: 10003,
                     msg: '该用户不存在'

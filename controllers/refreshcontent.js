@@ -3,17 +3,18 @@ const { query } = require('../mysql.cfg.js');
 const decodeLoginkey = require('../decodeloginkey.js');
 const redis = require('../redis')();
 
-var editcontent = async (ctx, next) => {
+var refreshcontent = async (ctx, next) => {
     var loginKey = ctx.request.body.loginKey || '';
+    var nid = ctx.request.body.nid || '';
     var tittle = ctx.request.body.tittle || '';
     var reqContent = ctx.request.body.content || '';
     
-    console.log('come in editcontent API');
+    console.log('come in refreshcontent API');
 
-    async function insertNote(a, b, c) {
-        let searchSql = `insert into note_info_tab (mid,tittle,content) values (${a},'${b}','${c}');`;
-        console.log(searchSql);
-        let dataList = await query(searchSql);
+    async function refreshNote(ti, con, mid, nid) {
+        let refreshSql = `update note_info_tab set tittle='${ti}' , content='${con}' where mid='${mid}' and nId='${nid}';`;
+        console.log(refreshSql);
+        let dataList = await query(refreshSql);
         return dataList;
     }
     async function respData() {
@@ -39,7 +40,7 @@ var editcontent = async (ctx, next) => {
                 APIError();
             }
             if (isLegal) {
-                let data = await insertNote(mid, tittle, reqContent);
+                let data = await refreshNote(tittle, reqContent, mid, nid);
                 console.log('done')
                 ctx.rest({
                     code: 10001,
@@ -57,5 +58,5 @@ var editcontent = async (ctx, next) => {
 };
 
 module.exports = {
-    'POST /note/editcontent': editcontent
+    'POST /note/refreshcontent': refreshcontent
 };

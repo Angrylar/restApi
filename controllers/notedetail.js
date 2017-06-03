@@ -42,10 +42,7 @@ var noteDetail = async (ctx, next) => {
                     }
                     console.log(getter)
                 } else {
-                    ctx.rest({
-                        code: 10006,
-                        msg: '本次登录不合法，请重新登录',
-                    })
+                    APIError();
                 }
                 if (isLegal) {
                     let dataList = await searchNotelist(mid, nid);
