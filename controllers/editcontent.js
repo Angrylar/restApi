@@ -7,13 +7,13 @@ var editcontent = async (ctx, next) => {
     var loginKey = ctx.request.body.loginKey || '';
     var tittle = ctx.request.body.tittle || '';
     var reqContent = ctx.request.body.content || '';
-    
+
     console.log('come in editcontent API');
 
     async function insertNote(a, b, c) {
-        let searchSql = `insert into note_info_tab (mid,tittle,content) values (${a},'${b}','${c}');`;
-        console.log(searchSql);
-        let dataList = await query(searchSql);
+        let insertSql = `insert into note_info_tab (mid,tittle,content) values (${a},'${b}','${c}');`;
+        console.log(insertSql);
+        let dataList = await query(insertSql);
         return dataList;
     }
     async function respData() {
@@ -39,11 +39,12 @@ var editcontent = async (ctx, next) => {
                 APIError();
             }
             if (isLegal) {
-                let data = await insertNote(mid, tittle, reqContent);
-                console.log('done')
+                let dataList = await insertNote(mid, tittle, reqContent);
+                console.log(dataList)
                 ctx.rest({
                     code: 10001,
-                    msg: 'SUCCESS'
+                    msg: 'SUCCESS',
+                    result: { nid: dataList.insertId }
                 });
             } else {
                 ctx.rest({
