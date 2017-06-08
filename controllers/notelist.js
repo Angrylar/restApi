@@ -6,9 +6,10 @@ const redis = require('../redis')();
 
 var notelist = async (ctx, next) => {
     const loginKey = ctx.request.body.loginKey || '';
+    const page = ctx.request.body.page || 1;
     console.log('come in notelist API')
-    async function searchNotelist(mid) {
-        let searchSql = `select * from note_info_tab where mid = ${mid}`;
+    async function searchNotelist(mid, page) {
+        let searchSql = `select * from note_info_tab where mid = ${mid} order by modify_time desc limit ${(page-1)*15},15`;
         let dataList = await query(searchSql);
         return dataList;
     }
@@ -40,7 +41,7 @@ var notelist = async (ctx, next) => {
                 })
             }
             if (isLegal) {
-                let dataList = await searchNotelist(mid);
+                let dataList = await searchNotelist(mid, page);
                 console.log(dataList);
                 if (dataList.length >= 0) {
                     let result = [];
