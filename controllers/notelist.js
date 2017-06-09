@@ -14,6 +14,12 @@ var notelist = async (ctx, next) => {
         return dataList;
     }
 
+    async function tottlePage(mid) {
+        let tottlePageSql = `select count(1) from note_info_tab where mid = ${mid}`;
+        let data = await query(tottlePageSql);
+        return data;
+    }
+
     async function respData() {
         if (loginKey == '') {
             ctx.rest({
@@ -42,21 +48,31 @@ var notelist = async (ctx, next) => {
             }
             if (isLegal) {
                 let dataList = await searchNotelist(mid, page);
-                console.log(dataList);
+                let data = await tottlePage(mid); 
+                // console.log(dataList);
                 if (dataList.length >= 0) {
-                    let result = [];
+                    let result = {};
+                    let pageObj = {};
+                    let resultList = [];
                     for (let i = 0; i < dataList.length; i++) {
                         let tempObj = {};
                         tempObj.tittle = dataList[i].tittle;
                         let respTime = new Date(dataList[i].modify_time);
                         tempObj.time = `${respTime.getFullYear()}-${parseInt(respTime.getMonth()) + 1}-${respTime.getDay()} `;
                         tempObj.nid = dataList[i].nId;
-                        result.push(tempObj);
+                        resultList.push(tempObj);
                     }
+                    let tottleRow = Object.values(data[0]);
+                        // Math.ceil(tottleRow/10)
+                    console.log(Math.ceil(tottleRow/15));
+                    pageObj.tottlePage = Math.ceil(tottleRow/15);
+                    pageObj.currentPage = page;
+                    result.page = pageObj;
+                    result.resultList = resultList;
                     ctx.rest({
                         code: 10001,
                         msg: 'SUCCESS',
-                        resultList: result
+                        result: result
                     })
                 } else {
                     APIError();
